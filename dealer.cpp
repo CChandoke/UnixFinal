@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <string.h>
 #include "commonFunc.c"
 
 using namespace std;
@@ -30,7 +31,7 @@ const char * const showStatus(int &s)
 	switch (s) 
 		{
 		case 768: 		// TRIAL_SUCCESS 
-			return "success";
+			return "success"; 
 		case 1024: 		// TRIAL_FAILURE
 			return "failure";
 		default:
@@ -47,7 +48,7 @@ int main(int argc, char * const argv[]) {
 		switch (opt) 
 			{
 			case 'o':
-				strncpy(filename, optarg, 100);
+				filename = optarg;		// or use strcpy if necessary.  Strcpy was producing seg fault
 				fileMode = true;
 				break;
 			case 'v':
@@ -129,7 +130,7 @@ int main(int argc, char * const argv[]) {
 			}
 		}
 
-	// output results to file if fileMode flag is set
+	// output results to records file if fileMode flag is set
 	if (fileMode)																			
 		{
 		if (strcmp((const char *) filename, "") == 0)
@@ -141,9 +142,10 @@ int main(int argc, char * const argv[]) {
 				printf("File failed to open!  Error number %d" , errno);	
 			else 	// successfully opened or created file
 				{	// write results to file
-				dprintf(filename_fd, "Success - %.2f%%\nFailure - %.2f%%\n", successes / num_trials * 100, failures / num_trials * 100);
+				printf("Successfully opened or created file!\n");		// ***testing***
+				dprintf(filename_fd, "", successes / num_trials * 100, " ", failures / num_trials * 100);
 				}
-			}
+			}  
 		}
 	
 	// display results
