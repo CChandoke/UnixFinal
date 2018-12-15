@@ -1,4 +1,4 @@
-//
+// UnixFinal version
 
 #include <vector>
 #include <utility>
@@ -31,12 +31,12 @@ const char * const showStatus(int &s)
 	{
 	switch (s) 
 		{
-		case 768: 		// TRIAL_SUCCESS 
+		case 768: 		// success 
 			return "success"; 
-		case 1024: 		// TRIAL_FAILURE
+		case 1024: 		// failure
 			return "failure";
 		default:
-			printf("err %d\n", s);
+			printf("err %d\n", s);	
 			return "unexpected status code";
 		}
 	}
@@ -44,12 +44,12 @@ const char * const showStatus(int &s)
 int main(int argc, char * const argv[]) {
 
 	//read command line args
-	while ((opt = getopt(argc, argv, "vp:o:")) != -1) 
+		while ((opt = getopt(argc, argv, "vp:o:")) != -1) 
 		{
 		switch (opt) 
 			{
 			case 'o':
-				filename = optarg;		// or use strcpy if necessary.  Strcpy was producing seg fault
+				filename = optarg;		
 				fileMode = true;
 				break;
 			case 'v':
@@ -93,7 +93,8 @@ int main(int argc, char * const argv[]) {
 			devnull_fd = open("/dev/null", O_RDONLY);
 			dup2(devnull_fd, 1);	
 			close(1);	
-			execl("./hand", "hand", argv[1], argv[2], (char*) NULL);	
+			execv("./hand", argv);	// spawn child and pass args to it  
+			// execl("./hand", "hand", argv[1], argv[2], (char*) NULL);	
 			
 			// statements below are reached only if execl() failed for some reason
 			printf("execl() failure!\n\n");
@@ -144,7 +145,7 @@ int main(int argc, char * const argv[]) {
 			else 	// successfully opened or created file
 				{	// write results to file
 				printf("Successfully opened or created file!\n");		// ***testing***
-				dprintf(filename_fd, "", successes / num_trials * 100, " ", failures / num_trials * 100);
+				dprintf(filename_fd, "%.2f %.2f\n", successes / num_trials * 100, failures / num_trials * 100);
 				}
 			}  
 		}
