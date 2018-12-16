@@ -37,11 +37,17 @@ int main(int argc, char * const argv[]) {
 
 	gsl_rng *rng = gsl_rng_alloc(gsl_rng_mt19937);
 	struct timespec tp;
-	clock_gettime(CLOCK_REALTIME, &tp);		// used as seed for random number generator
-	gsl_rng_set(rng, tp.tv_nsec);		// use time in nanoseconds (so seed is different for each 
-										// child process) and generate random number
+	if (clock_gettime(CLOCK_REALTIME, &tp) == -1)		// used as seed for random number generator; -1 returned if failure
+		{
+		printError("Failed to retrieve seed for GSL random number generator! Aborting.");
+		exit(1);
+		}
+	gsl_rng_set(rng, tp.tv_nsec);		// seed with time in nanoseconds and generate random number
 	if (rng == NULL)
+		{
 		printError("Failed to initialize GSL random number generator! Aborting.");
+		exit(1);
+		}
 
 	double randVal = gsl_rng_uniform (rng) * 100;	// convert random number to percentage
 	gsl_rng_free (rng);		
