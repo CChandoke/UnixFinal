@@ -35,22 +35,22 @@ int main(int argc, char * const argv[]) {
 
 	//main functionality
 
-	gsl_rng *rng = gsl_rng_alloc(gsl_rng_mt19937);
+	gsl_rng *rng = gsl_rng_alloc(gsl_rng_mt19937);	
 	struct timespec tp;
-	if (clock_gettime(CLOCK_REALTIME, &tp) == -1)		// used as seed for random number generator; -1 returned if failure
+	if (clock_gettime(CLOCK_REALTIME, &tp) == -1)		// get clock time; used as seed for random number generator; -1 returned if failure
 		{
 		printError("Failed to retrieve seed for GSL random number generator! Aborting.");
 		exit(1);
 		}
-	gsl_rng_set(rng, tp.tv_nsec);		// seed with time in nanoseconds and generate random number
+	gsl_rng_set(rng, tp.tv_nsec);		// seed with time in nanoseconds a
 	if (rng == NULL)
 		{
 		printError("Failed to initialize GSL random number generator! Aborting.");
 		exit(1);
 		}
 
-	double randVal = gsl_rng_uniform (rng) * 100;	// convert random number to percentage
-	gsl_rng_free (rng);		
+	double randVal = gsl_rng_uniform (rng) * 100;	// generate random number and convert to percentage
+	gsl_rng_free (rng);		// free memory resources associated with the random number generator
 
 	if (randVal <= percentage) 
 		{		
