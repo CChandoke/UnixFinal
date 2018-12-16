@@ -22,9 +22,9 @@ int opt = -1;	// default to invalid value; getopt's -1 return value dictates tha
 ssize_t numBytesRead = 0;
 int filename_fd = 0;			// file descriptor 
 char * filename;
-void * buffer = malloc(25);		
+char * buffer = (char *) malloc(30 * sizeof(char));		
 double successRatio = 0, failureRatio = 0;		// read in from records file
-
+const char * argString;
 	
 int main(int argc, char * const argv[]) {
 
@@ -64,14 +64,20 @@ int main(int argc, char * const argv[]) {
 			{
 			filename_fd = open(filename, O_RDONLY);		// open file for reading
 			if (filename_fd == -1)		// failed to open or create file
-				fprintf(stderr, "File failed to open for reading!  Error number %d", errno);	
+				{
+				fprintf(stderr, "File failed to open for reading!  Error number %d \n", errno);
+				exit(1);
+				}	
 			else 	// read from file
 				{	
 				printf("Successfully opened file for reading!\n");		// ***testing***
 				numBytesRead = read(filename_fd, buffer, 24);
-				if (numBytesRead = -1)
+				if (numBytesRead == -1)
 					fprintf(stderr, "read() failure!  Error number %d \n", errno);	
+				printf("Read %d bytes.\n", filename_fd, 24);
+				printf("Those bytes are as follows: %s\n", buffer);
 				}
+			close(filename_fd);
 			}  
 	
 	// display results
