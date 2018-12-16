@@ -24,7 +24,8 @@ int opt, num_trials = -1;	// default to invalid value; getopt's -1 return value 
 int devnull_fd, filename_fd = 0;			// file descriptors
 vector<pair<pid_t, int>> results; //collects child process metadata
 char * filename;
-
+double successes, failures, successRatio, failureRatio = 0;
+double buffer [2];
 
 
 const char * const showStatus(int &s) 
@@ -118,7 +119,6 @@ int main(int argc, char * const argv[]) {
 	printf("Created %d processes.\n", num_trials);		
 
 	//tally the successes and failures
-	double successes = 0, failures = 0;
 	for (pair<pid_t, int> p : results) 
 		{
 		switch (p.second) 	// switch based on the child's exit code (i.e., its status)
@@ -130,11 +130,18 @@ int main(int argc, char * const argv[]) {
 				failures++;
 				break;
 			}
-		}
+		}	
+		
+	// calculate final ratios for success and failure
+	successRatio = successes / num_trials * 100;
+	failureRatio = failures / num_trials * 100;
+	buffer[0] = successRatio; 
+	buffer[1] = failureRatio; 
+
  
 	// output results to records file if fileMode flag is set
 	if (fileMode)																			
-		{
+		{ 
 		if (strcmp((const char *) filename, "") == 0)
 			printError("You need to specify a file name when using the -o option!");
 		else 
@@ -143,15 +150,15 @@ int main(int argc, char * const argv[]) {
 			if (filename_fd == -1)		// failed to open or create file
 				printf("File failed to open!  Error number %d" , errno);	
 			else 	// successfully opened or created file
-				{	// write results to file
+				{	// write results to file 
 				printf("Successfully opened or created file!\n");		// ***testing***
-				dprintf(filename_fd, "%.2f %.2f\n", successes / num_trials * 100, failures / num_trials * 100);
+				write( filename_fd, buffer, sizeof(buffer) );
 				}
 			}  
 		}
 	
 	// display results
-	printf("Success - %.2f%%\nFailure - %.2f%%\n", successes / num_trials * 100, failures / num_trials * 100);
+	printf("Success - %.2f%%\nFailure - %.2f%%\n", successRatio, failureRatio);
 
 	return EXIT_SUCCESS;
 }

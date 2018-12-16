@@ -21,10 +21,9 @@ double percentage = -1;		// default to invalid value
 int opt = -1;	// default to invalid value; getopt's -1 return value dictates that opt be an integer type
 ssize_t numBytesRead = 0;
 int filename_fd = 0;			// file descriptor 
+int offset = 0;		// byte offset for lseek()
 char * filename;
-char * buffer = (char *) malloc(30 * sizeof(char));		
-double successRatio = 0, failureRatio = 0;		// read in from records file
-const char * argString;
+double buffer [2]; // read in from records file
 	
 int main(int argc, char * const argv[]) {
 
@@ -54,7 +53,6 @@ int main(int argc, char * const argv[]) {
 	if (percentage == -1)	// percentage not given
 		printError("You need to specify a percentage!");
 
-
  
 	// main functionality -- read from records file 
 
@@ -63,7 +61,7 @@ int main(int argc, char * const argv[]) {
 		else 
 			{
 			filename_fd = open(filename, O_RDONLY);		// open file for reading
-			if (filename_fd == -1)		// failed to open or create file
+			if (filename_fd == -1)		// failed to open file
 				{
 				fprintf(stderr, "File failed to open for reading!  Error number %d \n", errno);
 				exit(1);
@@ -71,17 +69,18 @@ int main(int argc, char * const argv[]) {
 			else 	// read from file
 				{	
 				printf("Successfully opened file for reading!\n");		// ***testing***
-				numBytesRead = read(filename_fd, buffer, 24);
+				offset = sizeof(buffer) * ((percentage / 10) -1) ;
+				lseek(filename_fd, offset, SEEK_SET);		// set position to read from file
+				numBytesRead = read(filename_fd, buffer, sizeof(buffer)); 	// read from file and check for read error (-1)
 				if (numBytesRead == -1)
-					fprintf(stderr, "read() failure!  Error number %d \n", errno);	
-				printf("Read %d bytes.\n", filename_fd, 24);
-				printf("Those bytes are as follows: %s\n", buffer);
+					fprintf(stderr, "read() failure!  Error number %d \n", errno);
+				printf("Read %d bytes.\n", sizeof(buffer));
 				}
 			close(filename_fd);
 			}  
 	
 	// display results
-	printf("Success - %.2f%%\nFailure - %.2f%%\n", successRatio, failureRatio);
+	printf("Success - %.2f%%\nFailure - %.2f%%\n", buffer[0], buffer[1]);
 
 	return EXIT_SUCCESS;
 }
